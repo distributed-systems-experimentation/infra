@@ -1,0 +1,37 @@
+services:
+  rust-crates-registry:
+    image: ghcr.io/kellnr/kellnr:5
+    container_name: rust-crates-registry
+    profiles:
+      - infra
+    environment:
+      - KELLNR_PROXY__ENABLED=true
+    ports:
+      - "8000:8000"
+    volumes:
+      - rust-crates-registry-data:/opt/kdata
+
+  local-docker-registry:
+    image: registry:2
+    container_name: local-docker-registry
+    profiles:
+      - infra
+    ports:
+      - "5432:5000"
+    volumes:
+      - local-docker-registry-data:/var/lib/registry
+
+  docker-registry-ui:
+    image: konradkleine/docker-registry-frontend:v2
+    container_name: docker-registry-ui
+    profiles:
+      - infra
+    ports:
+      - "8080:80"
+    environment:
+      ENV_DOCKER_REGISTRY_HOST: local-docker-registry
+      ENV_DOCKER_REGISTRY_PORT: 5000
+
+volumes:
+  rust-crates-registry-data:
+  local-docker-registry-data:
